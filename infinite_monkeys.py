@@ -40,11 +40,20 @@ class TypingMonkeyThread(threading.Thread):
 
     def hit(self):
         #print("Monkey %s hit at position %d!" % (self.name, self.hit_position))
+        self.hit_position +=1
         if self.hit_position == len(aimed_text):
             print("Monkey %s typed whole text!" % (self.name))
             self.exit_flag = True
             done_event.set()
-
+    
+    def no_hit(self, val):
+        self.hit_position = 0
+        if check(val):
+            self.hit()
+                    
+    def check(self, val):
+        return aimed_text[self.hit_position] == val
+        
     def run(self):
         #print("Starting monkey %s" % self.name)
         while True:
@@ -52,11 +61,11 @@ class TypingMonkeyThread(threading.Thread):
                 break
             val = self.monkey.get_next_value()
 
-            if aimed_text[self.hit_position] == val:
-                self.hit_position +=1
+            if check(val):
                 self.hit()
             else:
-                self.hit_position = 0
+                self.no_hit(val)
+                
             #print("Monkey %s typed %s " % (self.name, val))
 
         #print("Exiting monkey %s" % self.name)
